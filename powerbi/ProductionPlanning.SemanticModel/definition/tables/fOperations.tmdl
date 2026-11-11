@@ -1,0 +1,211 @@
+table fOperations
+	lineageTag: dd446944-11b7-53af-8bea-eec58f17c0ab
+
+	measure 'Planned Load (h)' = SUM ( fOperations[planned_hours] )
+		formatString: #,0
+		displayFolder: 1 Capacity
+		lineageTag: c99cf7cb-0239-553e-9f41-95618eb76505
+
+	measure 'Capacity (h)' = SUM ( fCapacity[capacity_hours] )
+		formatString: #,0
+		displayFolder: 1 Capacity
+		lineageTag: a10fb2db-c58f-552c-8c25-08da0b209be9
+
+	measure 'Utilization %' = DIVIDE ( [Planned Load (h)], [Capacity (h)] )
+		formatString: 0%
+		displayFolder: 1 Capacity
+		lineageTag: c9820f3e-b16a-5aa9-a655-6481a26c7fae
+
+	measure 'Backlog (h)' =
+			-- planned hours not finished yet
+			CALCULATE ( [Planned Load (h)], fOperations[status] <> "Done" )
+		formatString: #,0
+		displayFolder: 1 Capacity
+		lineageTag: 49840f3a-1371-5afd-a04b-58a564ed8bfa
+
+	measure 'Orders in WIP' = CALCULATE ( DISTINCTCOUNT ( fOperations[order_id] ), fOperations[status] = "In progress" )
+		formatString: #,0
+		displayFolder: 1 Capacity
+		lineageTag: cd8cb262-84ec-5053-b172-12e94d7589de
+
+	measure 'Overloaded Weeks' =
+			-- number of (work center x week) combinations where load > capacity
+			SUMX (
+			    VALUES ( dWorkCenter[work_center] ),
+			    COUNTROWS ( FILTER ( VALUES ( dCalendar[week_start] ), [Utilization %] > 1 ) )
+			)
+		formatString: #,0
+		displayFolder: 1 Capacity
+		lineageTag: 2180b43e-aa23-59ec-8226-395a8d56a7a3
+
+	measure 'Operations Done' =
+			CALCULATE (
+			    COUNTROWS ( fOperations ),
+			    fOperations[status] = "Done",
+			    USERELATIONSHIP ( fOperations[planned_end], dCalendar[date] )
+			)
+		formatString: #,0
+		displayFolder: 2 Execution
+		lineageTag: fb5c171a-c200-517a-b0a1-062094a9e121
+
+	measure 'Schedule Adherence %' =
+			-- operations finished on or before the planned end, by week of planned end
+			VAR on_time =
+			    CALCULATE (
+			        COUNTROWS ( fOperations ),
+			        fOperations[status] = "Done",
+			        fOperations[delay_days] = 0,
+			        USERELATIONSHIP ( fOperations[planned_end], dCalendar[date] )
+			    )
+			RETURN DIVIDE ( on_time, [Operations Done] )
+		formatString: 0.0%
+		displayFolder: 2 Execution
+		lineageTag: 9d4f5a98-89f4-5312-bd5f-e7c874fc6c8d
+
+	measure 'Avg Delay (days)' =
+			-- only operations that finished late
+			CALCULATE (
+			    AVERAGE ( fOperations[delay_days] ),
+			    fOperations[delay_days] > 0,
+			    USERELATIONSHIP ( fOperations[planned_end], dCalendar[date] )
+			)
+		formatString: #,0.0
+		displayFolder: 2 Execution
+		lineageTag: cb6cc98e-f98f-537e-82b0-ef0e9e64dedf
+
+	measure 'Hours Deviation %' =
+			-- actual vs planned hours of finished operations
+			VAR planned = CALCULATE ( SUM ( fOperations[planned_hours] ), fOperations[status] = "Done" )
+			VAR actual = CALCULATE ( SUM ( fOperations[actual_hours] ), fOperations[status] = "Done" )
+			RETURN DIVIDE ( actual - planned, planned )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 2 Execution
+		lineageTag: 1aaf6497-a187-5764-ba53-e5a24be430e8
+
+	measure 'Late Open Operations' = CALCULATE ( COUNTROWS ( fOperations ), fOperations[is_late_open] = "Yes" )
+		formatString: #,0
+		displayFolder: 2 Execution
+		lineageTag: 94f6835b-4b42-5578-b681-417fe9018953
+
+	column operation_id
+		dataType: string
+		lineageTag: 0327923e-d820-5762-9d92-d885595be141
+		summarizeBy: none
+		sourceColumn: operation_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: string
+		lineageTag: 77e8d7a1-d8c9-5dcf-973c-e6ff4290463a
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column work_center_id
+		dataType: string
+		lineageTag: 26e243e4-6ed3-57de-a020-f434898e4a6f
+		summarizeBy: none
+		sourceColumn: work_center_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column operation_sequence
+		dataType: int64
+		formatString: 0
+		lineageTag: 49aaa272-0a3d-5593-9164-5db94ee8d866
+		summarizeBy: none
+		sourceColumn: operation_sequence
+
+		annotation SummarizationSetBy = Automatic
+
+	column planned_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: f160aa69-1072-57df-9ea9-664ca8991e8f
+		summarizeBy: none
+		sourceColumn: planned_start
+
+		annotation SummarizationSetBy = Automatic
+
+	column planned_end
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 607e125f-4253-55af-9c1b-01c863d5f339
+		summarizeBy: none
+		sourceColumn: planned_end
+
+		annotation SummarizationSetBy = Automatic
+
+	column planned_hours
+		dataType: double
+		formatString: #,0.0
+		lineageTag: 57342b92-4ae4-5965-a2ff-5868f5b70ec1
+		summarizeBy: sum
+		sourceColumn: planned_hours
+
+		annotation SummarizationSetBy = Automatic
+
+	column actual_hours
+		dataType: double
+		formatString: #,0.0
+		lineageTag: 77765605-26d0-5361-8e6c-257ec0d50edc
+		summarizeBy: sum
+		sourceColumn: actual_hours
+
+		annotation SummarizationSetBy = Automatic
+
+	column actual_end
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 08e7ca49-8c38-593a-b25f-3f404a71fbb5
+		summarizeBy: none
+		sourceColumn: actual_end
+
+		annotation SummarizationSetBy = Automatic
+
+	column status
+		dataType: string
+		lineageTag: 2d0a0826-0aeb-5bf5-aeed-aabd8ba82dd5
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column delay_days =
+			-- calendar days finished after the planned end (0 if on time or not finished)
+			IF (
+			    fOperations[status] = "Done",
+			    MAX ( 0, INT ( fOperations[actual_end] - fOperations[planned_end] ) ),
+			    0
+			)
+		dataType: int64
+		formatString: 0
+		lineageTag: 753d6d59-8d8f-5a84-9050-960a942686d3
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_late_open =
+			-- not finished although the planned end is already in the past
+			VAR snapshot = DATE ( 2026, 10, 31 )
+			RETURN IF ( fOperations[status] <> "Done" && fOperations[planned_end] < snapshot, "Yes", "No" )
+		dataType: string
+		lineageTag: a7afb9e0-b29f-5db1-9e3e-cb6cafa84f44
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fOperations = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(DataFolder & "production_planning.xlsx"), null, true),
+				    Sheet = Source{[Item="fOperations",Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"operation_id", type text}, {"order_id", type text}, {"work_center_id", type text}, {"operation_sequence", Int64.Type}, {"planned_start", type date}, {"planned_end", type date}, {"planned_hours", type number}, {"actual_hours", type number}, {"actual_end", type date}, {"status", type text}})
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

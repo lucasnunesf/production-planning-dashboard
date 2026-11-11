@@ -1,0 +1,27 @@
+relationship 598a5857-3fe3-58bf-961f-2564cfdacb49
+	fromColumn: fOperations.order_id
+	toColumn: dOrder.order_id
+
+relationship b4b76239-b32e-5403-8194-4bc2919e8915
+	fromColumn: fOperations.work_center_id
+	toColumn: dWorkCenter.work_center_id
+
+relationship 79cf56ea-1da2-56bc-9aa2-c037d7fda961
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fOperations.planned_start
+	toColumn: dCalendar.date
+
+relationship 73672bb7-4a72-5f57-bee7-9d46a01a8bc6
+	isActive: false
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fOperations.planned_end
+	toColumn: dCalendar.date
+
+relationship 9311d9de-4d9f-5888-879a-167159600b0c
+	fromColumn: fCapacity.work_center_id
+	toColumn: dWorkCenter.work_center_id
+
+relationship 30f35ac4-550c-57cb-a74a-651d7b25e366
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fCapacity.date
+	toColumn: dCalendar.date

@@ -1,0 +1,66 @@
+table dOrder
+	lineageTag: 798f9ca7-a823-556e-a2c5-dd78968d36e0
+
+	column order_id
+		dataType: string
+		lineageTag: e0223703-4baf-5109-9181-9e1249992986
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer
+		dataType: string
+		lineageTag: 3ebc3016-fafa-5ccb-b0a8-7e4e4f039ef7
+		summarizeBy: none
+		sourceColumn: customer
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_family
+		dataType: string
+		lineageTag: eb6f943f-6b28-50b0-ab9d-c5f07631bf5b
+		summarizeBy: none
+		sourceColumn: product_family
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity
+		dataType: int64
+		formatString: #,0
+		lineageTag: 0ed272f0-5979-57ad-a4d6-c725b5a9e0ef
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column release_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: e99ec951-bc30-579d-b33c-3a1f3c278af4
+		summarizeBy: none
+		sourceColumn: release_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column due_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 3dfb6fe0-fba0-57f8-9edc-c2e907693cdd
+		summarizeBy: none
+		sourceColumn: due_date
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dOrder = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(DataFolder & "production_planning.xlsx"), null, true),
+				    Sheet = Source{[Item="dOrder",Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"order_id", type text}, {"customer", type text}, {"product_family", type text}, {"quantity", Int64.Type}, {"release_date", type date}, {"due_date", type date}})
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

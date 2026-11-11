@@ -1,0 +1,41 @@
+table fCapacity
+	lineageTag: d62c1e7c-1fdb-5aa5-b05d-4baebd21c57f
+
+	column date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 6e5aa0a4-613f-59e5-86be-78308a2e7263
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+	column work_center_id
+		dataType: string
+		lineageTag: 93d3d0d1-ac2a-5cb2-b40b-f39f46b7e661
+		summarizeBy: none
+		sourceColumn: work_center_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column capacity_hours
+		dataType: double
+		formatString: #,0.0
+		lineageTag: e36dcd12-eaae-5374-8208-eb53e49873c0
+		summarizeBy: sum
+		sourceColumn: capacity_hours
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fCapacity = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(DataFolder & "production_planning.xlsx"), null, true),
+				    Sheet = Source{[Item="fCapacity",Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"date", type date}, {"work_center_id", type text}, {"capacity_hours", type number}})
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

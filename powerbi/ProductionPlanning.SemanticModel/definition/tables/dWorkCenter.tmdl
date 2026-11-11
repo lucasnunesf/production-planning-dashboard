@@ -1,0 +1,50 @@
+table dWorkCenter
+	lineageTag: 3d257cfb-85c4-5633-a0ed-98fe678b407d
+
+	column work_center_id
+		dataType: string
+		lineageTag: 0e9f848f-6c3e-53ad-abd7-269eecfc046a
+		summarizeBy: none
+		sourceColumn: work_center_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column work_center
+		dataType: string
+		lineageTag: bc5af2cb-7edb-5f36-b199-a20d1852d813
+		summarizeBy: none
+		sourceColumn: work_center
+		sortByColumn: routing_sequence
+
+		annotation SummarizationSetBy = Automatic
+
+	column routing_sequence
+		dataType: int64
+		formatString: 0
+		lineageTag: 2cec890f-2c17-5e7d-85d6-0e480cf9a1a0
+		summarizeBy: none
+		sourceColumn: routing_sequence
+
+		annotation SummarizationSetBy = Automatic
+
+	column capacity_hours_per_day
+		dataType: int64
+		formatString: 0
+		lineageTag: 2a9b4cd0-2daa-58e7-8088-aec1804a37ec
+		summarizeBy: none
+		sourceColumn: capacity_hours_per_day
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dWorkCenter = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(DataFolder & "production_planning.xlsx"), null, true),
+				    Sheet = Source{[Item="dWorkCenter",Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"work_center_id", type text}, {"work_center", type text}, {"routing_sequence", Int64.Type}, {"capacity_hours_per_day", Int64.Type}})
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

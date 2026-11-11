@@ -1,0 +1,17 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["DataFolder", "fOperations", "fCapacity", "dOrder", "dWorkCenter", "dCalendar"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+ref table fOperations
+ref table fCapacity
+ref table dOrder
+ref table dWorkCenter
+ref table dCalendar

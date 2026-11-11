@@ -1,0 +1,47 @@
+{
+  "name": "Production Planning",
+  "dataColors": [
+    "#3A86FF",
+    "#14213D",
+    "#FCA311",
+    "#2A9D8F",
+    "#C8553D",
+    "#8D99AE"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#1F2A36",
+  "tableAccent": "#3A86FF",
+  "textClasses": {
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 10,
+      "color": "#3A4452"
+    },
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 12,
+      "color": "#1F2A36"
+    },
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 26,
+      "color": "#1F2A36"
+    }
+  },
+  "visualStyles": {
+    "page": {
+      "*": {
+        "background": [
+          {
+            "color": {
+              "solid": {
+                "color": "#EEF1F6"
+              }
+            },
+            "transparency": 0
+          }
+        ]
+      }
+    }
+  }
+}

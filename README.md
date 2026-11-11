@@ -13,11 +13,34 @@ A Power BI dashboard for production planning (PCP) in a metal fabrication shop. 
 |---|---|
 | **Result** | The shop runs at 76% overall, but welding averages 86%, goes over 100% in 7 weeks and reaches 138% in November. Welding also takes 19.5% more hours than planned. |
 | **My role** | I worked with BI at AC Metais, a Brazilian laser cutting and metal fabrication company. This repository rebuilds a planning use case from that shop with synthetic data: data generator, data model, DAX, report pages, tests. |
-| **What's here** | A Power BI project (`.pbip`) written by Python: 5 tables, 11 DAX measures, 2 pages, 24 visuals. A data generator, a pandas check of the numbers, 19 automated tests, CI on every commit. |
+| **What's here** | A Power BI project (`.pbip`) written by Python and published to the Power BI Service: 5 tables, 11 DAX measures, 2 pages, 24 visuals. A data generator, a pandas check of the numbers, 19 automated tests, CI on every commit. |
 | **Skills** | Power BI, DAX, Power Query (M), data modelling (galaxy schema, role-playing dates), TMDL / PBIR, Python (pandas), pytest, GitHub Actions |
 | **Full case** | [docs/case-study.md](docs/case-study.md) |
 
 All data is synthetic. Nothing here comes from the company.
+
+---
+
+## The dashboard
+
+Recorded in the Power BI Service after publishing the project. Slicers and cross-filtering work on both pages.
+
+**Capacity vs load.** Can the shop deliver the plan, and where is the bottleneck? Picking a work center or a product family updates the weekly load against capacity, and the table shows which work centers need overtime in the coming weeks.
+
+![Capacity vs load page in use](docs/demo-capacity-vs-load.gif)
+
+**Schedule adherence.** Are we following the plan, and where do the hours go? Adherence by week, hours deviation by work center, adherence by product family and the open operations already past their planned end.
+
+![Schedule adherence page in use](docs/demo-schedule-adherence.gif)
+
+<details>
+<summary><b>Full-size screenshots</b></summary>
+
+![Capacity vs load](docs/page-capacity-vs-load.png)
+
+![Schedule adherence](docs/page-schedule-adherence.png)
+
+</details>
 
 ---
 

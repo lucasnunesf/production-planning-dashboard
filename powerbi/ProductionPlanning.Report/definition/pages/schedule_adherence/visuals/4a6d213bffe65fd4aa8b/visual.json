@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "fOperations.operation_id",
-              "nativeQueryRef": "operation_id"
+              "nativeQueryRef": "operation_id",
+              "displayName": "Operation"
             },
             {
               "field": {
@@ -41,7 +42,8 @@
                 }
               },
               "queryRef": "dOrder.customer",
-              "nativeQueryRef": "customer"
+              "nativeQueryRef": "customer",
+              "displayName": "Customer"
             },
             {
               "field": {
@@ -55,7 +57,8 @@
                 }
               },
               "queryRef": "dOrder.product_family",
-              "nativeQueryRef": "product_family"
+              "nativeQueryRef": "product_family",
+              "displayName": "Product family"
             },
             {
               "field": {
@@ -69,7 +72,8 @@
                 }
               },
               "queryRef": "dWorkCenter.work_center",
-              "nativeQueryRef": "work_center"
+              "nativeQueryRef": "work_center",
+              "displayName": "Work center"
             },
             {
               "field": {
@@ -83,7 +87,8 @@
                 }
               },
               "queryRef": "fOperations.planned_end",
-              "nativeQueryRef": "planned_end"
+              "nativeQueryRef": "planned_end",
+              "displayName": "Planned end"
             },
             {
               "field": {
@@ -97,7 +102,8 @@
                 }
               },
               "queryRef": "fOperations.planned_hours",
-              "nativeQueryRef": "planned_hours"
+              "nativeQueryRef": "planned_hours",
+              "displayName": "Planned (h)"
             },
             {
               "field": {
@@ -111,7 +117,8 @@
                 }
               },
               "queryRef": "fOperations.status",
-              "nativeQueryRef": "status"
+              "nativeQueryRef": "status",
+              "displayName": "Status"
             }
           ]
         }

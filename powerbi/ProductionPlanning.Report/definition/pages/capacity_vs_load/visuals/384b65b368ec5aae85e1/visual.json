@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "dCalendar.week_label",
-              "nativeQueryRef": "week_label"
+              "nativeQueryRef": "week_label",
+              "displayName": "Week"
             },
             {
               "field": {
@@ -41,7 +42,8 @@
                 }
               },
               "queryRef": "dWorkCenter.work_center",
-              "nativeQueryRef": "work_center"
+              "nativeQueryRef": "work_center",
+              "displayName": "Work center"
             },
             {
               "field": {

@@ -1,33 +1,74 @@
-# Production Planning · Capacity vs Load · Power BI
+# Production Planning · Capacity vs Load
 
-Power BI dashboard for **production planning (PCP)** in a metal fabrication shop: planned load vs capacity by work center and week, the bottleneck, the backlog, and how well the shop follows the plan.
+A Power BI dashboard for production planning (PCP) in a metal fabrication shop. It compares the planned load of each work center with its capacity, week by week, and shows that the shop looks fine in total while welding is the bottleneck.
 
-The use case is based on **AC Metais**, a Brazilian laser-cutting and metal fabrication company. **All data is synthetic**, generated in Python.
+![Production planning: capacity vs load](docs/banner.png)
 
-> 📸 *Screenshots: `docs/images/` (add after opening the report in Power BI Desktop)*
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Power BI](https://img.shields.io/badge/Power%20BI-PBIP-F2C811?logo=powerbi&logoColor=black)
+![DAX](https://img.shields.io/badge/DAX-TMDL-555555)
+[![tests](https://github.com/lucasnunesf/production-planning-dashboard/actions/workflows/tests.yml/badge.svg)](https://github.com/lucasnunesf/production-planning-dashboard/actions/workflows/tests.yml)
+
+| At a glance | |
+|---|---|
+| **Result** | The shop runs at 76% overall, but welding averages 86%, goes over 100% in 7 weeks and reaches 138% in November. Welding also takes 19.5% more hours than planned. |
+| **My role** | I worked with BI at AC Metais, a Brazilian laser cutting and metal fabrication company. This repository rebuilds a planning use case from that shop with synthetic data: data generator, data model, DAX, report pages, tests. |
+| **What's here** | A Power BI project (`.pbip`) written by Python: 5 tables, 11 DAX measures, 2 pages, 24 visuals. A data generator, a pandas check of the numbers, 19 automated tests, CI on every commit. |
+| **Skills** | Power BI, DAX, Power Query (M), data modelling (galaxy schema, role-playing dates), TMDL / PBIR, Python (pandas), pytest, GitHub Actions |
+| **Full case** | [docs/case-study.md](docs/case-study.md) |
+
+All data is synthetic. Nothing here comes from the company.
+
+---
+
+## Results
+
+![Load divided by capacity, every work center, every week](docs/schedule-board.png)
+
+Numbers from the dataset, snapshot on 31 Oct 2026, plan until 22 Nov 2026:
+
+| | |
+|---|---|
+| Orders / routing operations | 754 / 3,225 |
+| Utilization, whole shop | 76% |
+| Utilization, welding | 86% on average, over 100% in 7 weeks, peak 138% |
+| Welding hours, actual vs planned | +19.5% (the largest deviation of all work centers) |
+| Schedule adherence | 71.9% of operations finish by their planned end |
+| Average delay of late operations | 5.1 days |
+| Backlog | 2,038 planned hours, 27 operations open past their planned end |
+
+Decisions it supports: plan overtime or a temporary welder for November, fix the welding time standards, and check welding capacity before confirming large tank orders.
+
+---
 
 ## The problem
 
-Every order follows a routing: **laser cutting → bending → welding → finishing → assembly → shipping**. Sales confirms delivery dates without seeing whether each work center has the hours available. The plan looks fine in total, but one work center is overloaded and every order behind it is late.
+![Before and after](docs/before-after.png)
 
-## Key findings (synthetic data, May – Nov 2026, snapshot 31 Oct)
+Every order follows a routing: laser cutting → press brake bending → welding → finishing → assembly → shipping. Sales confirmed delivery dates looking at the total workload of the shop. The total looked comfortable, but the hours were not spread evenly: one work center was overloaded, and every order that went through it was late.
 
-- Overall utilization is **76%**, but **welding** is the bottleneck: 86% on average, above 100% in **7 weeks**, and up to **138%** in November after a large tank order was booked.
-- Welding also takes **19.5% more hours than planned**, the largest deviation of all work centers.
-- Only **71.9%** of operations finish by their planned end; the average delay of late operations is 5.1 days.
-- Backlog of 2,038 planned hours; 27 operations are open past their planned end.
+The dashboard answers two questions, one per page:
 
-## Dashboard
+- **Capacity vs load.** Can the shop deliver the plan, and where is the bottleneck? KPI cards (utilization, backlog hours, orders in WIP, overloaded weeks), load vs capacity by week, utilization and backlog by work center, and a table of the next weeks showing which work centers need overtime.
+- **Schedule adherence.** Are we following the plan, and where do the hours go? KPI cards (adherence, average delay, hours deviation, late open operations), adherence by week, actual vs planned hours by work center, adherence by product family and the list of late open operations.
 
-**Page 1 · Capacity vs load** — *Can the shop deliver the plan, and where is the bottleneck?*
-KPI cards (utilization, backlog hours, orders in WIP, overloaded weeks) · load vs capacity by week (column + line) · utilization by work center · backlog by work center · next weeks table (which work centers need overtime).
+---
 
-**Page 2 · Schedule adherence** — *Are we following the plan, and where do the hours go?*
-KPI cards (adherence, avg delay, hours deviation, late open operations) · adherence by week · actual vs planned hours by work center · adherence by product family · list of late open operations.
+## How it works
 
-## Data model
+![Pipeline](docs/pipeline.png)
 
-Two fact tables sharing conformed dimensions (galaxy schema), single-direction filters.
+| Step | What it does | Language | Output |
+|---|---|---|---|
+| `scripts/generate_data.py` | Creates orders, routings, delays, holidays and a large tank order in November. Seeded, so it always gives the same data. | Python | `data/production_planning.xlsx` |
+| `scripts/build_pbip.py` | Describes the dashboard: tables, Power Query, relationships, DAX measures, pages and visuals. | Python | `powerbi/ProductionPlanning.pbip` |
+| `scripts/pbip_lib.py` | Small reusable builder that writes the model in TMDL and the report in PBIR (one JSON file per page and visual). | Python | TMDL + PBIR files |
+| `scripts/validate_pbir.py` | Checks every report file against Microsoft's JSON schemas. | Python | `0 schema errors` |
+| `scripts/kpi_snapshot.py` | Computes the main numbers with pandas, using the same logic as the DAX, so they can be checked without Power BI. | Python | numbers in the terminal |
+
+### Data model
+
+Two fact tables that share dimensions (galaxy schema), filters in one direction.
 
 ```
                 dOrder        dWorkCenter
@@ -46,13 +87,13 @@ Two fact tables sharing conformed dimensions (galaxy schema), single-direction f
 | `fCapacity` | work center × working day (hours available) | 870 |
 | `dOrder` | production order | 754 |
 | `dWorkCenter` | work center | 6 |
-| `dCalendar` | day (with week and horizon) | 203 |
+| `dCalendar` | day, with week and horizon (history / plan ahead) | 203 |
 
-Highlights:
+## Design decisions
 
-- **Load vs capacity from two fact tables**: load comes from operations (by planned start), capacity from a separate table (by day), and both meet through the work center and calendar dimensions.
-- **Two date roles**: planned start is active; planned end is inactive and activated with `USERELATIONSHIP` for adherence and delay.
-- **Overloaded weeks** counts work center × week combinations above 100%:
+- **Two fact tables, not one.** Load lives at the operation level and capacity at the day × work center level. Putting capacity on the operations table would repeat it or lose days with no work. They meet through the shared work center and calendar dimensions.
+- **Planned end as an inactive relationship.** Load is counted by planned start. Adherence and delay need planned end, so that relationship is inactive and switched on with `USERELATIONSHIP` only inside those measures. The model stays a simple star.
+- **Overloaded weeks counted per work center.** A total utilization number hides the bottleneck, so the measure counts work center × week combinations above 100%:
 
 ```DAX
 Overloaded Weeks =
@@ -62,40 +103,99 @@ SUMX (
 )
 ```
 
-## Report as code
+- **Report as code.** The `.pbip` format is plain text, so the model and every visual can be reviewed in a pull request and rebuilt with one command. IDs are deterministic, so rebuilding does not create noisy diffs.
 
-The report is a **Power BI Project (.pbip)** built by Python: semantic model in **TMDL**, report in **PBIR** (one JSON per page and visual) and a custom theme. `scripts/pbip_lib.py` is a small reusable builder; `scripts/build_pbip.py` only describes this dashboard. Every JSON file is validated against Microsoft's official schemas.
+---
 
-## Repository
-
-```
-data/production_planning.xlsx       synthetic data (5 sheets)
-scripts/generate_data.py            data generator (seeded, reproducible)
-scripts/pbip_lib.py                 reusable TMDL + PBIR builder
-scripts/build_pbip.py               dashboard definition
-scripts/validate_pbir.py            schema validation
-powerbi/ProductionPlanning.pbip     open this in Power BI Desktop
-docs/                               case study and screenshots
-```
-
-## How to run
+## Try it
 
 ```bash
 pip install -r requirements.txt
 python scripts/generate_data.py
 python scripts/build_pbip.py
+python scripts/kpi_snapshot.py
 ```
 
-1. Open `powerbi/ProductionPlanning.pbip` in Power BI Desktop (Windows).
+Output:
+
+```
+3,225 operations / 754 orders written to .../data/production_planning.xlsx
+Built .../powerbi/ProductionPlanning.pbip: 5 tables, 11 measures, 2 pages, 24 visuals
+
+Operations / orders        3,225 / 754
+Utilization (all)          76%
+Welding utilization        86%  (> 100% in 7 weeks, peak 138%)
+Welding hours vs plan      +19.5%
+Schedule adherence         71.9%  (late ones: 5.1 days)
+Backlog                    2,038 h
+Late open operations       27
+Orders in WIP              10
+```
+
+Then, on Windows:
+
+1. Open `powerbi/ProductionPlanning.pbip` in Power BI Desktop.
 2. *Transform data → Edit parameters →* set **DataFolder** to the full path of the `data` folder, ending with `\`.
 3. *Refresh.*
 
-Optional schema check: `git clone --depth 1 https://github.com/microsoft/json-schemas.git` and `python scripts/validate_pbir.py json-schemas`.
+## Tests
 
-## Tools
+```bash
+git clone --depth 1 https://github.com/microsoft/json-schemas.git   # optional, for the schema test
+pytest
+```
 
-Python (pandas, NumPy) · Excel · Power BI Desktop · Power Query (M) · DAX · TMDL · PBIR
+```
+============================== 19 passed in 3.50s ==============================
+```
+
+| File | What it checks |
+|---|---|
+| `tests/test_data.py` | The generator gives the same file every time. Keys match. Routings follow the work center order. Planned dates fall on working days. Status matches actual hours and dates. Holidays have no capacity. |
+| `tests/test_model.py` | Rebuilding gives exactly the files in the repository. Every column and measure used by a visual or a DAX formula exists in the model (the JSON schemas don't check this). A broken visual is caught. All report files pass Microsoft's schemas. |
+| `tests/test_kpis.py` | Every number in this README is recomputed from the data, including the bottleneck and the 13 overloaded work center weeks. |
+
+GitHub Actions runs the tests on every commit.
+
+<details>
+<summary><b>Project layout</b></summary>
+
+```
+data/production_planning.xlsx      synthetic data (5 sheets)
+scripts/generate_data.py           data generator (seeded)
+scripts/pbip_lib.py                reusable TMDL + PBIR builder
+scripts/build_pbip.py              dashboard definition
+scripts/validate_pbir.py           schema validation
+scripts/kpi_snapshot.py            main numbers with pandas
+powerbi/ProductionPlanning.pbip    open this in Power BI Desktop
+tests/                             data, model and number tests
+docs/                              case study and README images
+```
+
+</details>
+
+<details>
+<summary><b>Glossary</b></summary>
+
+- **PCP**: production planning and control (*planejamento e controle da produção*).
+- **Work center**: a group of machines or people that does one kind of operation, like welding.
+- **Routing**: the ordered list of work centers an order goes through.
+- **Load**: planned hours of the operations that start in a period.
+- **Capacity**: hours a work center has available in a period.
+- **Utilization**: load ÷ capacity. Above 100% means the plan does not fit.
+- **Schedule adherence**: share of finished operations that ended on or before the planned end.
+- **Backlog**: planned hours not finished yet.
+
+</details>
+
+---
+
+## Next steps
+
+- Read orders and routings from the ERP instead of the generator.
+- Add a what-if parameter for overtime hours per work center.
+- Keep a weekly snapshot of the plan, to compare what was promised with what happened.
 
 ## Author
 
-[lucasnunesf](https://github.com/lucasnunesf)
+Lucas Fernandes Nunes · [Portfolio](https://lucasnunesf.notion.site) · [GitHub](https://github.com/lucasnunesf)

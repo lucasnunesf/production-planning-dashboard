@@ -219,6 +219,12 @@ docs/                              case study and README images
 - Add a what-if parameter for overtime hours per work center.
 - Keep a weekly snapshot of the plan, to compare what was promised with what happened.
 
+## How this was built
+
+The problem, the business rules and the design decisions are mine. They come from my BI work at AC Metais. I used an AI coding assistant to write the code faster and reviewed the result.
+
+<!-- Lucas: write here, in your own words, one or two sentences about where you saw this problem happen. -->
+
 ## Author
 
 Lucas Fernandes Nunes · [Portfolio](https://lucasnunesf.notion.site) · [GitHub](https://github.com/lucasnunesf)

@@ -213,12 +213,6 @@ docs/                              case study and README images
 
 ---
 
-## Next steps
-
-- Read orders and routings from the ERP instead of the generator.
-- Add a what-if parameter for overtime hours per work center.
-- Keep a weekly snapshot of the plan, to compare what was promised with what happened.
-
 ## How this was built
 
 The problem, the business rules and the design decisions are mine. They come from my BI work at AC Metais. I used an AI coding assistant to write the code faster and reviewed the result.

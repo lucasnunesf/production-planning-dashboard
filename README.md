@@ -13,7 +13,7 @@ A Power BI dashboard for production planning (PCP) in a metal fabrication shop. 
 |---|---|
 | **Result** | The shop runs at 76% overall, but welding averages 86%, goes over 100% in 7 weeks and reaches 138% in November. Welding also takes 19.5% more hours than planned. |
 | **My role** | I worked with BI at AC Metais, a Brazilian laser cutting and metal fabrication company. This repository rebuilds a planning use case from that shop with synthetic data: data generator, data model, DAX, report pages, tests. |
-| **What's here** | A Power BI project (`.pbip`) written by Python and published to the Power BI Service: 5 tables, 11 DAX measures, 2 pages, 24 visuals. A data generator, a pandas check of the numbers, 19 automated tests, CI on every commit. |
+| **What's here** | A Power BI project (`.pbip`) written by Python and published to the Power BI Service: 5 tables, 11 DAX measures, 2 pages, 24 visuals. A data generator, a pandas check of the numbers, 22 automated tests, CI on every commit. |
 | **Skills** | Power BI, DAX, Power Query (M), data modelling (galaxy schema, role-playing dates), TMDL / PBIR, Python (pandas), pytest, GitHub Actions |
 | **Full case** | [docs/case-study.md](docs/case-study.md) |
 
@@ -169,7 +169,7 @@ pytest
 ```
 
 ```
-============================== 19 passed in 3.50s ==============================
+============================== 22 passed in 3.50s ==============================
 ```
 
 | File | What it checks |
@@ -220,4 +220,4 @@ The problem, the business rules and the design decisions are mine. They come fro
 
 ## Author
 
-Lucas Fernandes Nunes · [Portfolio](https://lucasnunesf.notion.site) · [GitHub](https://github.com/lucasnunesf)
+Lucas Fernandes Nunes · [Portfolio](https://lucasnunesf.notion.site/Lucas-Nunes-Data-BI-Analyst-3de917c89c178092885cf639b619767b) · [GitHub](https://github.com/lucasnunesf)
